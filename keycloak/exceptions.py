@@ -85,8 +85,11 @@ def raise_error_from_response(response, error, expected_codes=None, skip_exists=
             return {}
 
         try:
-            return response.json()
-        except ValueError:
+            if response.status_code == 201:
+                return {'location': response.headers['Location']}
+            else:
+                return response.json()
+        except (KeyError, ValueError):
             return response.content
 
     if skip_exists and response.status_code == 409:
